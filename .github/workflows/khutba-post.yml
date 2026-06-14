@@ -1,0 +1,45 @@
+name: Khutba — cotygodniowy post
+
+on:
+  schedule:
+    - cron: '0 11 * * *'   # 13:00 Warszawa (czas letni / CEST)
+    - cron: '0 12 * * *'   # 13:00 Warszawa (czas zimowy / CET)
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Tryb testowy — renderuje, ale NIE publikuje i nie zapisuje stanu'
+        type: boolean
+        default: false
+
+jobs:
+  khutba:
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Zaleznosci systemowe dla Chromium
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 libdrm2 \
+            libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 \
+            libgbm1 libasound2 libpango-1.0-0 libcairo2 libatspi2.0-0 fonts-liberation
+
+      - name: Instalacja pakietow
+        run: npm install
+
+      - name: Sprawdz i opublikuj khutbe
+        run: node khutba-daily.js
+        env:
+          GUARD: ${{ github.event_name == 'schedule' && 'khutba' || '' }}
+          DRY_RUN: ${{ (github.event_name == 'workflow_dispatch' && inputs.dry_run) && '1' || '' }}
+          META_PAGE_ID: ${{ secrets.META_PAGE_ID }}
+          META_PAGE_TOKEN: ${{ secrets.META_PAGE_TOKEN }}
+          META_IG_USER_ID: ${{ secrets.META_IG_USER_ID }}
+          META_GRAPH_VERSION: v21.0
