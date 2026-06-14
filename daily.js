@@ -38,6 +38,31 @@ async function uploadCatbox(file) {
   return url;
 }
 
+// Stellt das Bild oeffentlich bereit. In GitHub Actions: ins Repo committen + raw-URL.
+// Lokal: catbox (funktioniert von Heim-IP).
+async function publishImage(file, ymd) {
+  if (!process.env.GITHUB_ACTIONS) return uploadCatbox(file);
+
+  const pubDir = path.join(__dirname, 'obrazy');
+  fs.mkdirSync(pubDir, { recursive: true });
+  fs.copyFileSync(file, path.join(pubDir, `czasy-${ymd}.png`));
+
+  execSync('git config user.name "Ahmadiyya PL Automation"', { cwd: __dirname });
+  execSync('git config user.email "automation@ahmadiyya.pl"', { cwd: __dirname });
+  execSync(`git add "obrazy/czasy-${ymd}.png"`, { cwd: __dirname });
+  try { execSync(`git commit -m "Obraz czasow modlitwy ${ymd}"`, { cwd: __dirname, stdio: 'inherit' }); }
+  catch { console.log('(obraz bez zmian — pomijam commit)'); }
+  execSync('git push', { cwd: __dirname, stdio: 'inherit' });
+
+  const repo = process.env.GITHUB_REPOSITORY;
+  const url = `https://raw.githubusercontent.com/${repo}/main/obrazy/czasy-${ymd}.png`;
+  for (let i = 0; i < 20; i++) {
+    try { const r = await fetch(url, { method: 'HEAD' }); if (r.ok) return url; } catch { /* noch nicht da */ }
+    await new Promise((s) => setTimeout(s, 3000));
+  }
+  return url;
+}
+
 async function main() {
   const { ymd } = todayParts();
 
