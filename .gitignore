@@ -2,3 +2,4 @@ node_modules/
 out/
 secrets.env
 .env
+khutba-caption.txt
