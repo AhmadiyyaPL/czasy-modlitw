@@ -1,0 +1,38 @@
+name: Codzienny post — czasy modlitw
+
+on:
+  schedule:
+    - cron: '0 22 * * *'   # 00:00 Warszawa (czas letni / CEST)
+    - cron: '0 23 * * *'   # 00:00 Warszawa (czas zimowy / CET)
+  workflow_dispatch:        # pozwala uruchomic recznie z zakladki Actions
+
+jobs:
+  post:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Zaleznosci systemowe dla Chromium
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 libdrm2 \
+            libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 \
+            libgbm1 libasound2 libpango-1.0-0 libcairo2 libatspi2.0-0 fonts-liberation
+
+      - name: Instalacja pakietow
+        run: npm install
+
+      - name: Generuj i publikuj
+        run: node daily.js
+        env:
+          # GUARD aktywny tylko dla harmonogramu (recznie = zawsze publikuje)
+          GUARD: ${{ github.event_name == 'schedule' && 'midnight' || '' }}
+          META_PAGE_ID: ${{ secrets.META_PAGE_ID }}
+          META_PAGE_TOKEN: ${{ secrets.META_PAGE_TOKEN }}
+          META_IG_USER_ID: ${{ secrets.META_IG_USER_ID }}
+          META_GRAPH_VERSION: v21.0
