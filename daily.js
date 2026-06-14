@@ -80,7 +80,7 @@ async function main() {
   fs.writeFileSync(capFile, caption);
 
   // 3) oeffentlich ablegen
-  const url = await uploadCatbox(file);
+  const url = await publishImage(file, ymd);
   console.log('Bild-URL:', url);
 
   // 4) posten
