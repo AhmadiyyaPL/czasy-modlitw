@@ -5,6 +5,11 @@ on:
     - cron: '0 22 * * *'   # 00:00 Warszawa (czas letni / CEST)
     - cron: '0 23 * * *'   # 00:00 Warszawa (czas zimowy / CET)
   workflow_dispatch:        # pozwala uruchomic recznie z zakladki Actions
+    inputs:
+      dry_run:
+        description: 'Tryb testowy — generuje i wysyla obraz, ale NIE publikuje'
+        type: boolean
+        default: false
 
 jobs:
   post:
@@ -32,6 +37,7 @@ jobs:
         env:
           # GUARD aktywny tylko dla harmonogramu (recznie = zawsze publikuje)
           GUARD: ${{ github.event_name == 'schedule' && 'midnight' || '' }}
+          DRY_RUN: ${{ (github.event_name == 'workflow_dispatch' && inputs.dry_run) && '1' || '' }}
           META_PAGE_ID: ${{ secrets.META_PAGE_ID }}
           META_PAGE_TOKEN: ${{ secrets.META_PAGE_TOKEN }}
           META_IG_USER_ID: ${{ secrets.META_IG_USER_ID }}
