@@ -46,6 +46,8 @@ async function publishImage(file, ymd) {
   const pubDir = path.join(__dirname, 'obrazy');
   fs.mkdirSync(pubDir, { recursive: true });
   fs.copyFileSync(file, path.join(pubDir, `czasy-${ymd}.png`));
+  // Feste Adresse: zeigt IMMER das heutige Bild (praktisch fuer WhatsApp-Kanal, manuell teilen).
+  fs.copyFileSync(file, path.join(pubDir, 'dzisiaj.png'));
 
   // Lebenszeichen: garantiert taeglich eine Aenderung -> Repo bleibt "aktiv",
   // GitHub pausiert den Zeitplan nie wegen 60-Tage-Inaktivitaet.
