@@ -47,11 +47,15 @@ async function publishImage(file, ymd) {
   fs.mkdirSync(pubDir, { recursive: true });
   fs.copyFileSync(file, path.join(pubDir, `czasy-${ymd}.png`));
 
+  // Lebenszeichen: garantiert taeglich eine Aenderung -> Repo bleibt "aktiv",
+  // GitHub pausiert den Zeitplan nie wegen 60-Tage-Inaktivitaet.
+  fs.writeFileSync(path.join(__dirname, 'last-run.txt'), `Ostatni post: ${new Date().toISOString()} (${ymd})\n`);
+
   execSync('git config user.name "Ahmadiyya PL Automation"', { cwd: __dirname });
   execSync('git config user.email "automation@ahmadiyya.pl"', { cwd: __dirname });
-  execSync(`git add "obrazy/czasy-${ymd}.png"`, { cwd: __dirname });
-  try { execSync(`git commit -m "Obraz czasow modlitwy ${ymd}"`, { cwd: __dirname, stdio: 'inherit' }); }
-  catch { console.log('(obraz bez zmian — pomijam commit)'); }
+  execSync('git add obrazy last-run.txt', { cwd: __dirname });
+  try { execSync(`git commit -m "Czasy modlitwy ${ymd}"`, { cwd: __dirname, stdio: 'inherit' }); }
+  catch { console.log('(brak zmian — pomijam commit)'); }
   execSync('git push', { cwd: __dirname, stdio: 'inherit' });
 
   const repo = process.env.GITHUB_REPOSITORY;
