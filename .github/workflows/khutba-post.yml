@@ -2,8 +2,8 @@ name: Khutba — cotygodniowy post
 
 on:
   schedule:
-    - cron: '0 11 * * *'   # 13:00 Warszawa (czas letni / CEST)
-    - cron: '0 12 * * *'   # 13:00 Warszawa (czas zimowy / CET)
+    - cron: '23 11 * * *'   # 13:23 Warszawa (CEST) — krzywa minuta omija szczyt obciazenia GitHuba
+    - cron: '23 12 * * *'   # 13:23 Warszawa (CET)
   workflow_dispatch:
     inputs:
       dry_run:

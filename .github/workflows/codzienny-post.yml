@@ -1,9 +1,11 @@
 name: Codzienny post — czasy modlitw
 
 on:
-  schedule:
-    - cron: '0 22 * * *'   # 00:00 Warszawa (czas letni / CEST)
-    - cron: '0 23 * * *'   # 00:00 Warszawa (czas zimowy / CET)
+  # Auto-plan WYLACZONY do czasu zatwierdzenia nowego designu (4:5, niebieskie tlo) na komputerze.
+  # Po zatwierdzeniu odkomentowac (juz z krzywa minuta 00:17):
+  # schedule:
+  #   - cron: '17 22 * * *'   # 00:17 Warszawa (CEST)
+  #   - cron: '17 23 * * *'   # 00:17 Warszawa (CET)
   workflow_dispatch:        # pozwala uruchomic recznie z zakladki Actions
     inputs:
       dry_run:
